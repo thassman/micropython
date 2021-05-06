@@ -1798,7 +1798,8 @@ STATIC void compile_async_for_stmt(compiler_t *comp, mp_parse_node_struct_t *pns
     uint try_finally_label = comp_next_label(comp);
 
     compile_node(comp, pns->nodes[1]); // iterator
-    compile_await_object_method(comp, MP_QSTR___aiter__);
+    EMIT_ARG(load_method, MP_QSTR___aiter__, false);
+    EMIT_ARG(call_method, 0, 0, 0);
     compile_store_id(comp, context);
 
     START_BREAK_CONTINUE_BLOCK
@@ -2596,7 +2597,7 @@ STATIC void compile_atom_brace_helper(compiler_t *comp, mp_parse_node_struct_t *
                     compile_node(comp, pn_i);
                     if (is_dict) {
                         if (!is_key_value) {
-                            #if MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_TERSE
+                            #if MICROPY_ERROR_REPORTING <= MICROPY_ERROR_REPORTING_TERSE
                             compile_syntax_error(comp, (mp_parse_node_t)pns, MP_ERROR_TEXT("invalid syntax"));
                             #else
                             compile_syntax_error(comp, (mp_parse_node_t)pns, MP_ERROR_TEXT("expecting key:value for dict"));
@@ -2606,7 +2607,7 @@ STATIC void compile_atom_brace_helper(compiler_t *comp, mp_parse_node_struct_t *
                         EMIT(store_map);
                     } else {
                         if (is_key_value) {
-                            #if MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_TERSE
+                            #if MICROPY_ERROR_REPORTING <= MICROPY_ERROR_REPORTING_TERSE
                             compile_syntax_error(comp, (mp_parse_node_t)pns, MP_ERROR_TEXT("invalid syntax"));
                             #else
                             compile_syntax_error(comp, (mp_parse_node_t)pns, MP_ERROR_TEXT("expecting just a value for set"));
